@@ -1,0 +1,103 @@
+openapi: 3.0.3
+info:
+  title: Customer Service API - FlashLoan Bank
+  version: 1.0.0
+  description: API reactiva para la gestión de clientes (Individuales y Empresariales).
+
+paths:
+  /customers:
+    post:
+      summary: Crear un nuevo cliente
+      operationId: createCustomer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Customer'
+      responses:
+        '201':
+          description: Cliente creado exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Customer'
+
+    get:
+      summary: Listar todos los clientes (Stream)
+      operationId: findAllCustomers
+      responses:
+        '200':
+          description: Flujo reactivo de clientes
+          content:
+            application/x-ndjson: # Formato para streaming reactivo
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Customer'
+
+  /customers/{id}:
+    get:
+      summary: Obtener cliente por ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Cliente encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Customer'
+        '404':
+          description: Cliente no encontrado
+
+components:
+  schemas:
+    Customer:
+      type: object
+      required:
+        - customerType
+        - email
+      properties:
+        id:
+          type: string
+        email:
+          type: string
+        phone:
+          type: string
+        address:
+          type: string
+        customerType:
+          type: string
+          enum: [INDIVIDUAL, BUSINESS]
+      discriminator:
+        propertyName: customerType
+        mapping:
+          INDIVIDUAL: '#/components/schemas/IndividualCustomer'
+          BUSINESS: '#/components/schemas/BusinessCustomer'
+
+    IndividualCustomer:
+      allOf:
+        - $ref: '#/components/schemas/Customer'
+        - type: object
+          properties:
+            firstName:
+              type: string
+            lastName:
+              type: string
+            documentNumber: # DNI en Perú
+              type: string
+
+    BusinessCustomer:
+      allOf:
+        - $ref: '#/components/schemas/Customer'
+        - type: object
+          properties:
+            businessName:
+              type: string
+            ruc: # Registro Único de Contribuyentes
+              type: string
