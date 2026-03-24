@@ -18,10 +18,13 @@ public class CustomerServiceImpl implements CustomerService {
     private final CustomerMapper mapper;
 
     @Override
-    public Single<CustomerDto> createCustomer(CustomerDto dto) {
-        return Single.just(dto)
-                .map(mapper::toEntity)
-                .flatMap(entity -> Single.fromPublisher(repository.save(entity)))
+    public Single<CustomerDto> createCustomer(CustomerDto customerDto) {
+        return Single.fromPublisher(repository.existsByEmail(customerDto.getEmail()))
+                .filter(exists -> !exists)
+                .switchIfEmpty(Single.error(new RuntimeException("El email ya está registrado"))) // Aquí vuelve a ser Single<Boolean>
+                .flatMap(unused ->
+                        Single.fromPublisher(repository.save(mapper.toEntity(customerDto)))
+                )
                 .map(mapper::toDto);
     }
 

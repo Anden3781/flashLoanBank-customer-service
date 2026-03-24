@@ -4,6 +4,7 @@ import com.flash_loan.bank.customer_service.dto.CustomerDto;
 import com.flash_loan.bank.customer_service.service.CustomerService;
 import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.core.Single;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,7 +19,7 @@ public class CustomerController {
 
     // Crear un nuevo cliente (Individual o Business)
     @PostMapping
-    public Single<ResponseEntity<CustomerDto>> createCustomer(@RequestBody CustomerDto customerDto) {
+    public Single<ResponseEntity<CustomerDto>> createCustomer(@Valid @RequestBody CustomerDto customerDto) {
         return customerService.createCustomer(customerDto)
                 .map(createdDto -> new ResponseEntity<>(createdDto, HttpStatus.CREATED));
     }
