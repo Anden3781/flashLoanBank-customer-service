@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -20,6 +21,7 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
 @WebFluxTest(controllers = CustomerController.class)
+@ActiveProfiles("test")
 class CustomerControllerTest {
 
     @Autowired
@@ -123,5 +125,20 @@ class CustomerControllerTest {
                 .uri("/api/v1/customers/1")
                 .exchange()
                 .expectStatus().isNotFound();
+    }
+
+    @Test
+    void createCustomer_InvalidPayload_ShouldReturnBadRequest() {
+        PersonalCustomerDto invalid = new PersonalCustomerDto();
+        invalid.setCustomerType("PERSONAL");
+        invalid.setEmail("bad-email");
+        invalid.setPhone("123");
+
+        webTestClient.post()
+                .uri("/api/v1/customers")
+                .contentType(MediaType.APPLICATION_JSON)
+                .bodyValue(invalid)
+                .exchange()
+                .expectStatus().isBadRequest();
     }
 }
