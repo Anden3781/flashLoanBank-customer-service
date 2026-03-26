@@ -1,0 +1,119 @@
+openapi: 3.0.3
+info:
+  title: Customer Service API - FlashLoan Bank
+  version: 1.0.0
+  description: API reactiva para la gestión de clientes (Individuales y Empresariales).
+
+servers:
+  - url: /api/v1/customers
+    description: Customer Service context path
+
+paths:
+  / :
+    post:
+      summary: Crear un nuevo cliente
+      operationId: createCustomer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Customer'
+      responses:
+        '201':
+          description: Cliente creado exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Customer'
+
+    get:
+      summary: Listar todos los clientes
+      operationId: findAllCustomers
+      responses:
+        '200':
+          description: Lista de clientes
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Customer'
+
+  /{id}:
+    get:
+      summary: Obtener cliente por ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Cliente encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Customer'
+        '404':
+          description: Cliente no encontrado
+
+    put:
+      summary: Actualizar cliente por ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Customer'
+      responses:
+        '200':
+          description: Cliente actualizado
+        '404':
+          description: Cliente no encontrado
+
+    delete:
+      summary: Eliminar cliente por ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Cliente eliminado
+        '404':
+          description: Cliente no encontrado
+
+components:
+  schemas:
+    Customer:
+      type: object
+      required:
+        - customerType
+        - email
+      properties:
+        id:
+          type: string
+          example: "CUST-001"
+        email:
+          type: string
+          format: email
+          example: "anderson@example.com"
+        phone:
+          type: string
+          example: "987654321"
+        address:
+          type: string
+          example: "Calle Principal 123"
+        customerType:
+          type: string
+          enum: [INDIVIDUAL, BUSINESS]
